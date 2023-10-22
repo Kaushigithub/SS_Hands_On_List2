@@ -43,14 +43,14 @@ int main() {
         exit(EXIT_FAILURE);
     } else {
         // Parent process
-        close(pipe_fd[1]); // Close the read end of the pipe
+        close(pipe_fd[1]); // Close the write end of the pipe
 
-        // Redirect the standard output (stdout) to write to the pipe
+        // Redirect the standard output (stdout) to read from the pipe
         dup2(pipe_fd[0], STDIN_FILENO);
-        close(pipe_fd[0]); // Close the write end of the pipe
+        close(pipe_fd[0]); // Close the read end of the pipe
 
         // Execute 'ls -l' command
-        execlp("ls", "ls", "-l", (char *)NULL);
+        execlp( "wc", "wc", (char *)NULL);
 
         // execlp() will only return if there's an error
         perror("execlp");

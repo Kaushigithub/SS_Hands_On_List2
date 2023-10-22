@@ -28,7 +28,7 @@ int main() {
 
     // Configure server address
     server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(12345); // Port number
+    server_address.sin_port = htons(12345); // Port number -  conversion from host byte order to network byte order
     server_address.sin_addr.s_addr = INADDR_ANY; // Listen on all available network interfaces
 
     // Bind the socket to the server address

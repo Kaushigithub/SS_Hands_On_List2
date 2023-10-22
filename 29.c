@@ -15,7 +15,7 @@ Date: 10 Oct, 2023.
 int main() {
     key_t key;
     int msgid;
-    key = ftok(".", 'B');
+    key = ftok(".", 'A');
     msgid = msgget(key, 0666);
     msgctl(msgid, IPC_RMID, NULL);
     printf("Message Queue removed successfully.\n");

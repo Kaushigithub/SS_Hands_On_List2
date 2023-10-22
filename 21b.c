@@ -7,27 +7,38 @@ Date: 3 Oct, 2023.
 ============================================================================
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/stat.h>
-int main() 
-{
-    int fd;
-    mkfifo("fifo1", 0666);
-    fd = open("fifo1", O_RDWR);
-    char buffer[100];
-    ssize_t bytesRead = read(fd, buffer, sizeof(buffer));
-    if (bytesRead > 0) 
-    {
-        buffer[bytesRead] = '\0';  // Null-terminate the string
-        printf("Received message: %s\n", buffer);
-        char response[] = "Message received!";
-        write(fd, response, sizeof(response));
+
+int main() {
+   
+    char message[100];
+
+    // Open the FIFO for reading
+    int fd = open("my_fifo", O_RDONLY);
+    if (fd == -1) {
+        perror("Error opening FIFO for reading");
+        exit(EXIT_FAILURE);
     }
+
+    printf("Waiting for messages from the writer program...\n");
+
+    while (1) {
+        // Read data from the FIFO
+        ssize_t bytes_read = read(fd, message, sizeof(message));
+
+        if (bytes_read == 0) {
+            printf("Writer has closed the FIFO. Exiting.\n");
+            break;
+        } else if (bytes_read > 0) {
+            printf("Received message: %s\n", message);
+        }
+    }
+
+    // Close the FIFO and exit
     close(fd);
-    unlink("fifo1");
     return 0;
 }
+

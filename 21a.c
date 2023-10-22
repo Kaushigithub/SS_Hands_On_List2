@@ -11,20 +11,35 @@ Date: 3 Oct, 2023.
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/stat.h>
-int main() 
-{
-    int fd;
-    fd = open("fifo1", O_RDWR|O_CREAT, 0777);
-    char message[] = "Hello from Writer!\n";
-    write(fd, message, sizeof(message));
-    char response[100];
-    int bytesRead = read(fd, response, sizeof(response));
-    if (bytesRead > 0) 
-    {
-        response[bytesRead] = '\0';  // Null-terminate the string
-        printf("Received response: %s\n", response);
+#include <string.h>
+
+int main() {
+
+    char message[100];
+
+    // Open the FIFO for writing
+    int fd = open("my_fifo", O_WRONLY);
+    if (fd == -1) {
+        perror("Error opening FIFO for writing");
+        exit(EXIT_FAILURE);
     }
+
+    while (1) {
+        // Read user input
+        printf("Enter a message to send (or 'quit' to exit): ");
+        fgets(message, sizeof(message), stdin);
+        message[strcspn(message, "\n")] = '\0'; // Remove the newline character
+
+        if (strcmp(message, "quit") == 0) {
+            break; // Exit the loop if the user enters 'quit'
+        }
+
+        // Write the message to the FIFO
+        write(fd, message, strlen(message) + 1); // Include the null terminator
+    }
+
+    // Close the FIFO and exit
     close(fd);
     return 0;
 }
+

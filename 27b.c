@@ -21,20 +21,22 @@ struct msg_buffer {
     char msg_text[512];
 };
 int main() {
-    key_t key;
-    int msgid;
-    struct msg_buffer message;
-    key = ftok(".", 'B');
-    msgid = msgget(key, 0666);
-    while (1) {
-        ssize_t result = msgrcv(msgid, (void*)&message, 512, 0, IPC_NOWAIT);
-        if (result == -1) {
-                break;
-            }
-        printf("Received Message Type: %ld\n", message.msg_type);
-        printf("Message Text: %s\n", message.msg_text);
-        printf("----------------------------\n");
+
+    key_t key = ftok(".", 'A');
+    int msgqid;
+    struct msg_buffer msg;
+
+    // Create or obtain a message queue with the specified key
+    msgqid = msgget(key, 0666 | IPC_CREAT);
+
+    // Receiving a message with flag value 0 (blocking)
+    if (msgrcv(msgqid, &msg, sizeof(msg.msg_text), 1, IPC_NOWAIT) == -1) {
+        perror("msgrcv");
+        return 1;
     }
+
+    printf("Received message: %s\n", msg.msg_text);
 
     return 0;
 }
+
